@@ -40,7 +40,10 @@ jobs:
                 Get-ChildItem -Path .\* -Include *.template -Recurse | Remove-Item
                 
                 Write-Host "Compile: " -NoNewline
-                Start-Process -FilePath 'D:\PABCNETC\pabcnetcclear.exe' -ArgumentList '"0Mandelbrot.pas"' -Wait -NoNewWindow
+                $comp_proc = Start-Process -FilePath 'D:\PABCNETC\pabcnetcclear.exe' -ArgumentList '"0Mandelbrot.pas"' -Wait -NoNewWindow -PassThru
+                if ($comp_proc.ExitCode -ne 0) {
+                    throw "Compiler exited with code $($comp_proc.ExitCode)"
+                }
                 
             - name: Prepare github script
               run: npm install @actions/exec
