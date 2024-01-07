@@ -33,6 +33,19 @@ jobs:
                 
                 Expand-Archive -Path 'D:\PABCNETC.zip' -DestinationPath 'D:\PABCNETC' -Force
                 
+            - name: Download latest POCGL version
+              run: |
+              
+                pushd D:\
+                git clone -b unstable --filter=tree:0 --no-checkout https://github.com/SunSerega/POCGL.git
+                pushd POCGL
+                git sparse-checkout set --no-cone Modules.Packed/OpenCL.pas Modules.Packed/OpenCLABC.pas Modules.Packed/OpenGL.pas Modules.Packed/OpenGLABC.pas
+                git sparse-checkout list
+                git checkout
+                #Remove-Item -Path '.git' -Recurse -Force    
+                popd
+                popd
+                
             - name: Compile
               run: |
               
@@ -40,7 +53,7 @@ jobs:
                 Get-ChildItem -Path .\* -Include *.template -Recurse | Remove-Item
                 
                 Write-Host "Compile: " -NoNewline
-                $comp_proc = Start-Process -FilePath 'D:\PABCNETC\pabcnetcclear.exe' -ArgumentList '"0Mandelbrot.pas"' -Wait -NoNewWindow -PassThru
+                $comp_proc = Start-Process -FilePath 'D:\PABCNETC\pabcnetcclear.exe' -ArgumentList '"/SearchDir:D:\POCGL\Modules.Packed" "0Mandelbrot.pas"' -Wait -NoNewWindow -PassThru
                 if ($comp_proc.ExitCode -ne 0) {
                     throw "Compiler exited with code $($comp_proc.ExitCode)"
                 }
